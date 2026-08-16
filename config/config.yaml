@@ -1,0 +1,134 @@
+project:
+  name: "Random Forest CDP Load Profile Imputation"
+  version: "1.0"
+
+data:
+  input_file: "data/raw/Merged_All_Year_2024-25.csv"
+
+  selected_meter: "CDP_00526_P_01"
+
+  target_direction: "A-"
+
+  timestamp_column: "Time"
+
+  delimiter: ";"
+
+  timestamp_format: "%d.%m.%Y %H:%M:%S"
+
+  expected_interval_minutes: 30
+
+  never_modify_source_data: true
+
+
+dataset:
+  expected_cdp_count: 50
+
+  expected_total_columns: 101
+
+  require_unidirectional_meter: true
+
+  require_complete_source_data: true
+
+
+feature_engineering:
+  enabled: true
+
+  include_calendar_features: true
+
+  include_cyclic_features: true
+
+  include_target_lags: false
+
+  include_target_leads: false
+
+  normalize: false
+
+
+split:
+  method: "chronological"
+
+  train_ratio: 0.70
+
+  validation_ratio: 0.15
+
+  test_ratio: 0.15
+
+
+gaps:
+
+  lengths:
+    - 1
+    - 6
+    - 24
+    - 48
+
+  type: "interior"
+
+  context_left: 96
+
+  context_right: 96
+
+  common_test_locations: true
+
+  random_seed: 42
+
+
+supervised:
+
+  formulation: "fixed_event_window"
+
+  training_events: 30
+
+  validation_events: 6
+
+  test_events: 6
+
+  minimum_event_separation: 288
+
+  same_test_locations_across_gap_experiments: true
+
+
+model:
+
+  algorithm: "RandomForestRegressor"
+
+  random_state: 42
+
+  n_estimators: 300
+
+  max_depth: null
+
+  min_samples_split: 2
+
+  min_samples_leaf: 1
+
+  max_features: "sqrt"
+
+  n_jobs: -1
+
+
+evaluation:
+
+  metrics:
+    - MAE
+    - RMSE
+    - R2
+
+  evaluate_train: true
+
+  evaluate_validation: true
+
+  evaluate_test: true
+
+  evaluate_gap_positions: true
+
+
+outputs:
+
+  processed_data_dir: "data/processed"
+
+  supervised_data_dir: "data/processed/supervised"
+
+  model_dir: "models"
+
+  output_dir: "outputs"
