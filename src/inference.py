@@ -45,6 +45,7 @@ import argparse
 import json
 import math
 import re
+import os
 import sys
 import warnings
 from dataclasses import dataclass
@@ -1070,10 +1071,16 @@ def log_inference_to_mlflow(
         return None
 
     try:
-        mlflow_db = PROJECT_ROOT / "mlflow.db"
-        if mlflow_db.exists():
-            mlflow.set_tracking_uri(
-                f"sqlite:///{mlflow_db.resolve().as_posix()}"
+        tracking_uri = os.getenv("MLFLOW_TRACKING_URI")
+
+        if tracking_uri:
+            mlflow.set_tracking_uri(tracking_uri)
+        else:
+            mlflow_db = PROJECT_ROOT / "mlflow.db"
+
+            if mlflow_db.exists():
+                mlflow.set_tracking_uri(
+                    f"sqlite:///{mlflow_db.resolve().as_posix()}"
             )
 
         experiment_name = "AMI-Smart-Meters-V1-Tuned-Inference"

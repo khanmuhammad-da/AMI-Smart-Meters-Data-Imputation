@@ -1,0 +1,43 @@
+services:
+
+  ami-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: ami-smart-meter-app
+
+    ports:
+      - "8501:8501"
+
+    depends_on:
+      - mlflow
+
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+
+    volumes:
+      # Persist inference results
+      - ./outputs/inference:/app/outputs/inference
+
+    restart: unless-stopped
+
+
+  mlflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.mlflow
+
+    container_name: ami-mlflow
+
+    ports:
+      - "5000:5000"
+
+    volumes:
+      # MLflow database
+      - ./mlflow.db:/mlflow/mlflow.db
+
+      # MLflow experiment artifacts
+      - ./mlruns:/mlflow/mlruns
+
+    restart: unless-stopped
