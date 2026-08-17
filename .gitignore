@@ -93,3 +93,6 @@ mlruns/
 *~
 *.swp
 *.swo
+
+mlflow.db
+mlruns/
